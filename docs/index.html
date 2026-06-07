@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🚀 오늘의 1인 사업 기회 대시보드</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🚀 오늘의 1인 사업 기회</h1>
+    <div class="controls">
+      <select id="date-select" aria-label="날짜 선택"></select>
+      <span id="status" class="status"></span>
+    </div>
+  </header>
+
+  <main id="app">
+    <p class="loading">데이터를 불러오는 중…</p>
+  </main>
+
+  <nav class="tabs">
+    <button data-tab="ideas" class="active">🔥 미개척 아이디어</button>
+    <button data-tab="reddit">💬 Reddit 페인포인트</button>
+    <button data-tab="competitors">🎯 경쟁사 빈 공간</button>
+  </nav>
+
+  <footer>
+    <small>Product Hunt + Reddit + Claude 자동 분석 · 매일 갱신 ·
+      시장규모/경쟁사 항목은 <b>LLM 추정치</b>로 검증이 필요합니다.</small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
