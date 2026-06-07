@@ -1,28 +1,56 @@
 // 정적 대시보드 — docs/data/*.json 을 읽어 렌더한다. 빌드 도구 불필요.
 const app = document.querySelector("#app");
 let current = null;
+let currentDate = null;
 
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const list = (arr) => (Array.isArray(arr) && arr.length ? `<ul>${arr.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "<p class='muted'>—</p>");
 
+// index.json 을 다시 읽어 날짜 목록을 갱신하고, 원하는 날짜(없으면 최신)를 로드한다.
+async function loadIndex(preferDate) {
+  const index = await fetch("data/index.json", { cache: "no-store" }).then((r) => r.json());
+  const select = document.querySelector("#date-select");
+  const dates = index.dates || [];
+  select.innerHTML = dates.map((d) => `<option value="${d}">${d}</option>`).join("");
+  const target = preferDate && dates.includes(preferDate) ? preferDate : index.latest;
+  if (target) {
+    select.value = target;
+    await loadDate(target);
+  }
+}
+
 async function init() {
-  let index;
   try {
-    index = await fetch("data/index.json", { cache: "no-store" }).then((r) => r.json());
+    await loadIndex();
   } catch {
-    app.innerHTML = `<div class="warn">아직 생성된 데이터가 없습니다. Actions에서 워크플로우를 한 번 실행하세요.</div>`;
+    app.innerHTML = `<div class="warn">아직 생성된 데이터가 없습니다. ⚡새로 분석 버튼으로 워크플로우를 한 번 실행하세요.</div>`;
     return;
   }
-  const select = document.querySelector("#date-select");
-  select.innerHTML = (index.dates || []).map((d) => `<option value="${d}">${d}</option>`).join("");
-  select.addEventListener("change", () => loadDate(select.value));
-  if (index.latest) loadDate(index.latest);
+  document.querySelector("#date-select").addEventListener("change", (e) => loadDate(e.target.value));
+  document.querySelector("#refresh").addEventListener("click", refresh);
+}
+
+// 🔄 최신 데이터 다시 불러오기 (캐시 무시)
+async function refresh() {
+  const btn = document.querySelector("#refresh");
+  const status = document.querySelector("#status");
+  btn.classList.add("spinning");
+  status.textContent = "새로고침 중…";
+  try {
+    await loadIndex(currentDate);
+    status.textContent = `방금 새로고침 · ${currentDate || ""}`;
+  } catch {
+    status.textContent = "새로고침 실패 (네트워크 확인)";
+  } finally {
+    setTimeout(() => btn.classList.remove("spinning"), 700);
+  }
 }
 
 async function loadDate(d) {
   document.querySelector("#status").textContent = "불러오는 중…";
   current = await fetch(`data/${d}.json`, { cache: "no-store" }).then((r) => r.json());
+  currentDate = d;
   document.querySelector("#status").textContent = `갱신: ${d}`;
   render();
 }

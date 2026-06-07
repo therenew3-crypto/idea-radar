@@ -31,6 +31,16 @@ select {
   background: var(--card-2); color: var(--text);
   border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 0.9rem;
 }
+.btn {
+  background: var(--card-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px 12px; font-size: 0.85rem; cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.ghost { color: var(--accent); }
+#refresh.spinning { pointer-events: none; opacity: 0.7; animation: spin 0.7s linear; }
+@keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 .status { color: var(--muted); font-size: 0.85rem; }
 main { max-width: 860px; margin: 0 auto; padding: 16px; min-height: 60vh; }
 .loading { color: var(--muted); text-align: center; padding: 40px; }

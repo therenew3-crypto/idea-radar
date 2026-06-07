@@ -2,8 +2,8 @@ name: 일일 사업 기회 분석
 
 on:
   schedule:
-    # 매일 한국시간(KST) 오전 8시 = UTC 23:00 (전날)
-    - cron: "0 23 * * *"
+    # 매일 한국시간(KST) 오전 6시 = UTC 21:00 (전날)
+    - cron: "0 21 * * *"
   workflow_dispatch: {}   # 수동 실행 버튼
 
 permissions:
