@@ -1,19 +1,23 @@
 // 정적 대시보드 — docs/data/*.json 을 읽어 렌더한다. 빌드 도구 불필요.
 const app = document.querySelector("#app");
 let current = null;
-let currentDate = null;
+let currentId = null;
 
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const list = (arr) => (Array.isArray(arr) && arr.length ? `<ul>${arr.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "<p class='muted'>—</p>");
 
-// index.json 을 다시 읽어 날짜 목록을 갱신하고, 원하는 날짜(없으면 최신)를 로드한다.
-async function loadIndex(preferDate) {
+// index.json 을 다시 읽어 스냅샷 목록을 갱신하고, 원하는 스냅샷(없으면 최신)을 로드한다.
+async function loadIndex(preferId) {
   const index = await fetch("data/index.json", { cache: "no-store" }).then((r) => r.json());
+  // 신규 스키마(entries) 우선, 구버전(dates) 호환
+  const entries = index.entries || (index.dates || []).map((d) => ({ id: d, label: d }));
   const select = document.querySelector("#date-select");
-  const dates = index.dates || [];
-  select.innerHTML = dates.map((d) => `<option value="${d}">${d}</option>`).join("");
-  const target = preferDate && dates.includes(preferDate) ? preferDate : index.latest;
+  select.innerHTML = entries
+    .map((e) => `<option value="${e.id}">${esc(e.label)}${e.idea_count ? ` · ${e.idea_count}개` : ""}</option>`)
+    .join("");
+  const ids = entries.map((e) => e.id);
+  const target = preferId && ids.includes(preferId) ? preferId : index.latest || ids[0];
   if (target) {
     select.value = target;
     await loadDate(target);
@@ -38,8 +42,8 @@ async function refresh() {
   btn.classList.add("spinning");
   status.textContent = "새로고침 중…";
   try {
-    await loadIndex(currentDate);
-    status.textContent = `방금 새로고침 · ${currentDate || ""}`;
+    await loadIndex(currentId);
+    status.textContent = "방금 새로고침됨";
   } catch {
     status.textContent = "새로고침 실패 (네트워크 확인)";
   } finally {
@@ -47,11 +51,13 @@ async function refresh() {
   }
 }
 
-async function loadDate(d) {
+async function loadDate(id) {
+  const sel = document.querySelector("#date-select");
   document.querySelector("#status").textContent = "불러오는 중…";
-  current = await fetch(`data/${d}.json`, { cache: "no-store" }).then((r) => r.json());
-  currentDate = d;
-  document.querySelector("#status").textContent = `갱신: ${d}`;
+  current = await fetch(`data/${id}.json`, { cache: "no-store" }).then((r) => r.json());
+  currentId = id;
+  const label = sel.options[sel.selectedIndex]?.text || current.label || id;
+  document.querySelector("#status").textContent = `표시 중: ${label}`;
   render();
 }
 
