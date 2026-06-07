@@ -14,7 +14,8 @@ import os
 
 import anthropic
 
-DEFAULT_MODEL = os.environ.get("CLAUDE_MODEL", "claude-sonnet-4-6")
+# 환경변수가 비어 있어도(예: GitHub Actions의 미설정 variable -> "") 기본 모델로 대체.
+DEFAULT_MODEL = os.environ.get("CLAUDE_MODEL") or "claude-sonnet-4-6"
 
 
 def _client() -> anthropic.Anthropic:
