@@ -3,6 +3,25 @@ const app = document.querySelector("#app");
 let current = null;
 let currentId = null;
 
+// ⚡ 새 분석(과금 발생)은 비밀번호로 보호. 해시(SHA-256)만 저장해 평문 노출을 피한다.
+const REANALYZE_HASH = "5728c992e0c03fa48754a8636ffb192f1e2aa23f20be242c290d5eefd9b80182";
+
+async function sha256(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function guardReanalyze(e) {
+  e.preventDefault();
+  const pw = prompt("⚡ 새 분석은 비용이 발생합니다 (Claude 호출).\n실행하려면 비밀번호를 입력하세요:");
+  if (pw === null) return; // 취소
+  if ((await sha256(pw)) === REANALYZE_HASH) {
+    window.open(e.currentTarget.href, "_blank", "noopener");
+  } else {
+    alert("비밀번호가 틀렸습니다.");
+  }
+}
+
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const list = (arr) => (Array.isArray(arr) && arr.length ? `<ul>${arr.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "<p class='muted'>—</p>");
@@ -33,6 +52,7 @@ async function init() {
   }
   document.querySelector("#date-select").addEventListener("change", (e) => loadDate(e.target.value));
   document.querySelector("#refresh").addEventListener("click", refresh);
+  document.querySelector("#reanalyze").addEventListener("click", guardReanalyze);
 }
 
 // 🔄 최신 데이터 다시 불러오기 (캐시 무시)

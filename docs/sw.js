@@ -1,6 +1,6 @@
 // 간단한 서비스 워커 — 앱 껍데기는 캐시 우선, 데이터는 네트워크 우선.
 // 신호가 약해도 마지막으로 본 분석 결과를 보여줄 수 있다.
-const CACHE = "idea-dashboard-v2";
+const CACHE = "idea-dashboard-v3";
 const SHELL = ["./", "./index.html", "./style.css", "./app.js", "./manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {
