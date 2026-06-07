@@ -2,8 +2,17 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>🚀 1인 사업 기회 리서치 대시보드</title>
+
+  <!-- PWA: 홈 화면 추가 / 전체화면 / 오프라인 -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#ff6b35" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="사업기회" />
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -25,5 +34,11 @@
   </footer>
 
   <script src="app.js"></script>
+  <script>
+    // 서비스 워커 등록 (오프라인 캐시)
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+    }
+  </script>
 </body>
 </html>

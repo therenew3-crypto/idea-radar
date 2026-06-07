@@ -1,0 +1,15 @@
+{
+  "name": "1인 사업 기회 리서치",
+  "short_name": "사업기회",
+  "description": "매일 자동 업데이트되는 1인 창업 사업 기회 리서치 대시보드",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1115",
+  "theme_color": "#ff6b35",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
