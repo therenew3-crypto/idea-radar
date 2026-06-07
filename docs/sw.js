@@ -1,6 +1,6 @@
 // 서비스 워커 — 네트워크 우선, 오프라인일 때만 캐시로 폴백.
 // 온라인이면 항상 최신 UI/데이터를 보여주고, 신호가 없을 땐 마지막 캐시를 보여준다.
-const CACHE = "idea-dashboard-v4";
+const CACHE = "idea-dashboard-v5";
 const SHELL = ["./", "./index.html", "./style.css", "./app.js", "./manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {

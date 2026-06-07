@@ -2,6 +2,28 @@
 const app = document.querySelector("#app");
 let current = null;
 let currentId = null;
+let activeFilter = "all"; // "all" | "bookmarks" | 카테고리명
+
+// 제목 정규화(유니코드 글자·숫자만) — 북마크 식별 키
+const normTitle = (t) => String(t || "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+
+// 북마크 저장소 (브라우저 localStorage, 기기별 보관)
+function getBookmarks() {
+  try { return JSON.parse(localStorage.getItem("bookmarks") || "[]"); } catch { return []; }
+}
+function setBookmarks(b) { localStorage.setItem("bookmarks", JSON.stringify(b)); }
+function isBookmarked(title) {
+  const n = normTitle(title);
+  return getBookmarks().some((b) => normTitle(b.title) === n);
+}
+function toggleBookmark(idea, fromLabel) {
+  const n = normTitle(idea.title);
+  const b = getBookmarks();
+  const i = b.findIndex((x) => normTitle(x.title) === n);
+  if (i >= 0) b.splice(i, 1);
+  else b.unshift({ ...idea, _savedAt: new Date().toISOString(), _from: fromLabel || "" });
+  setBookmarks(b);
+}
 
 // ⚡ 새 분석(과금 발생)은 비밀번호로 보호. 해시(SHA-256)만 저장해 평문 노출을 피한다.
 const REANALYZE_HASH = "5728c992e0c03fa48754a8636ffb192f1e2aa23f20be242c290d5eefd9b80182";
@@ -97,36 +119,87 @@ function scoreClass(s) {
 
 function render() {
   if (!current) return;
+  const allIdeas = current.ideas || [];
+  const bookmarks = getBookmarks();
+  const isBookmarkView = activeFilter === "bookmarks";
+
+  // 표시할 아이디어 결정
+  let ideas;
+  if (isBookmarkView) ideas = bookmarks;
+  else if (activeFilter === "all") ideas = allIdeas;
+  else ideas = allIdeas.filter((i) => (i.category || "기타") === activeFilter);
+
   let html = "";
   for (const w of current.warnings || []) html += `<div class="warn">⚠️ ${esc(w)}</div>`;
 
-  if (current.common_themes?.length) {
+  // 필터 바: 전체 / ⭐북마크 / 카테고리들
+  const cats = [...new Set(allIdeas.map((i) => i.category || "기타"))];
+  const chip = (key, label) =>
+    `<button class="chip ${activeFilter === key ? "on" : ""}" data-filter="${esc(key)}">${esc(label)}</button>`;
+  html += `<div class="filters">
+    ${chip("all", `전체 ${allIdeas.length}`)}
+    ${chip("bookmarks", `⭐ 북마크 ${bookmarks.length}`)}
+    ${cats.map((c) => chip(c, c)).join("")}
+  </div>`;
+
+  // 공통 테마는 전체/카테고리 보기에서만
+  if (!isBookmarkView && current.common_themes?.length) {
     html += `<div class="themes"><div class="label">오늘의 공통 테마</div>${list(current.common_themes)}</div>`;
   }
 
-  const ideas = current.ideas || [];
   if (!ideas.length) {
-    html += `<p class="loading">아이디어가 없습니다. 잠시 후 다시 시도하세요.</p>`;
+    html += isBookmarkView
+      ? `<p class="loading">아직 북마크한 아이디어가 없어요.<br/>아이디어 카드의 ☆ 를 눌러 저장하세요.</p>`
+      : `<p class="loading">이 카테고리에 해당하는 아이디어가 없습니다.</p>`;
     app.innerHTML = html;
+    bindFilterChips();
     return;
   }
-  html += ideas.map((idea, i) => renderIdea(idea, i)).join("");
+
+  html += ideas.map((idea, i) => renderIdea(idea, i, isBookmarkView)).join("");
   app.innerHTML = html;
 
-  // 아코디언 토글 (첫 번째는 펼침)
+  bindFilterChips();
+
+  // 아코디언 토글 (첫 번째는 펼침). 별 버튼 클릭은 토글에서 제외.
   document.querySelectorAll(".idea-head").forEach((head, i) => {
     if (i === 0) head.parentElement.classList.add("open");
-    head.addEventListener("click", () => head.parentElement.classList.toggle("open"));
+    head.addEventListener("click", (e) => {
+      if (e.target.closest(".star")) return;
+      head.parentElement.classList.toggle("open");
+    });
+  });
+
+  // 별(북마크) 버튼
+  document.querySelectorAll(".star").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const data = JSON.parse(decodeURIComponent(btn.dataset.idea));
+      toggleBookmark(data, current.label || currentId);
+      render(); // 별 상태·북마크 수·목록 갱신
+    });
   });
 }
 
-function renderIdea(idea, i) {
+function bindFilterChips() {
+  document.querySelectorAll(".chip").forEach((c) =>
+    c.addEventListener("click", () => {
+      activeFilter = c.dataset.filter;
+      render();
+    })
+  );
+}
+
+function renderIdea(idea, i, isBookmarkView) {
   const v = idea.verdict || {};
   const score = Number.isFinite(v.score) ? v.score : "?";
   const m = idea.market || {};
   const p = idea.pricing_analysis || {};
   const sf = idea.solo_founder || {};
   const comps = idea.competitors || [];
+  const marked = isBookmarked(idea.title);
+  const ideaData = encodeURIComponent(JSON.stringify(idea));
+  const fromTag = isBookmarkView && idea._from ? `<span class="fromtag">${esc(idea._from)}</span>` : "";
 
   const compRows = comps
     .map(
@@ -139,9 +212,10 @@ function renderIdea(idea, i) {
     <div class="idea-head">
       <span class="rank">${esc(idea.rank ?? i + 1)}</span>
       <div class="titles">
-        <h3>${esc(idea.title)}</h3>
-        <div class="sub">${esc(idea.one_liner || idea.problem || "")}</div>
+        <h3>${esc(idea.title)} ${idea.category ? `<span class="cat">${esc(idea.category)}</span>` : ""}</h3>
+        <div class="sub">${esc(idea.one_liner || idea.problem || "")}${fromTag}</div>
       </div>
+      <button class="star ${marked ? "on" : ""}" title="북마크" data-idea="${ideaData}">${marked ? "★" : "☆"}</button>
       <div class="score ${scoreClass(score)}">${esc(score)}<small>/10</small></div>
       <span class="chev">▶</span>
     </div>
