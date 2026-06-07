@@ -12,6 +12,7 @@ GitHub Actions 가 매일 실행한다. 각 소스는 키가 없거나 실패해
 from __future__ import annotations
 
 import json
+import os
 import traceback
 from datetime import date
 from pathlib import Path
@@ -51,7 +52,14 @@ def build_report() -> dict:
     lead = top_ideas[0] if top_ideas else None
 
     # --- 2. Reddit + 프롬프트2 (1순위 아이디어 기준) ---
-    if lead:
+    # Reddit 키가 없으면 이 단계를 통째로 건너뛴다 (Claude 호출 비용도 아낌).
+    reddit_enabled = bool(
+        os.environ.get("REDDIT_CLIENT_ID") and os.environ.get("REDDIT_CLIENT_SECRET")
+    )
+    if not reddit_enabled:
+        report["warnings"].append("Reddit 키가 없어 프롬프트2(커뮤니티 분석)는 건너뜁니다.")
+        report["reddit"] = None
+    elif lead:
         kw = lead.get("search_keywords") or lead.get("title", "")
         reddit_raw = _safe("Reddit 수집", lambda: collect_reddit.collect(kw), {})
         reddit_analysis = _safe(
