@@ -58,14 +58,27 @@ DISCOVER_SYSTEM = (
 )
 
 
-def discover_ideas(posts: list[dict], n: int = 5) -> dict:
+def discover_ideas(posts: list[dict], n: int = 5, seen: list[dict] | None = None) -> dict:
+    seen = seen or []
+    exclusion = ""
+    if seen:
+        lines = "\n".join(f"- {s.get('title','')}: {s.get('problem','')}" for s in seen)
+        exclusion = f"""
+
+[이미 이전에 제안된 아이디어 — 중복 금지 ❌]
+아래는 과거 실행에서 이미 제안한 아이디어들이다. 이번에는 이것들과 겹치지 않는 '새로운' 기회만 제안하라.
+같은 문제를 표현만 바꾼 재탕도 금지한다. 다만 품질을 억지로 희생하지는 말고,
+정말 새로운 것이 부족하면 같은 영역이라도 '다른 타깃·다른 하위 니치·다른 각도'로 분명히 차별화하라.
+{lines}
+"""
     user = f"""다음은 지난 30일간 Product Hunt 상위 서비스 데이터(JSON)다:
 
 {json.dumps(posts, ensure_ascii=False)}
-
+{exclusion}
 작업:
 1. 각 서비스가 해결하려는 '문제'를 추출하고 공통 테마(클러스터)를 찾아라.
 2. 한국 온라인 시장 기준으로, 1인 개발자가 구축할 만한 '미개척 서비스' 상위 {n}개를 순위로 골라라.
+   (위 '중복 금지' 목록과 겹치지 않는 새로운 아이디어여야 한다)
 
 아래 JSON 스키마로만 답하라:
 {{

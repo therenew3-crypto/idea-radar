@@ -39,6 +39,34 @@ def _safe(label: str, fn, fallback):
         return fallback
 
 
+def _norm(title: str) -> str:
+    """제목 정규화 — 공백/기호/대소문자 무시하고 비교용 키 생성."""
+    return "".join(ch for ch in title.lower() if ch.isalnum())
+
+
+def _seen_ideas(limit: int = 300) -> list[dict]:
+    """과거 모든 스냅샷에서 제안된 아이디어(제목·문제)를 모은다. 중복 제외용."""
+    seen: dict[str, dict] = {}  # norm-title -> {title, problem}
+    # 최신 파일부터 (이름 역순) 스캔
+    for p in sorted(DATA_DIR.glob("*.json"), reverse=True):
+        if p.name == "index.json":
+            continue
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        if d.get("sample"):  # 샘플 데이터는 제외
+            continue
+        for idea in d.get("ideas", []):
+            title = (idea.get("title") or "").strip()
+            if not title:
+                continue
+            seen.setdefault(_norm(title), {"title": title, "problem": (idea.get("problem") or "").strip()})
+        if len(seen) >= limit:
+            break
+    return list(seen.values())[:limit]
+
+
 def build_report() -> dict:
     now = datetime.now(timezone.utc)
     now_kst = now.astimezone(KST)
@@ -59,16 +87,27 @@ def build_report() -> dict:
         report["warnings"].append("Product Hunt 데이터를 가져오지 못했습니다 (토큰 확인).")
     report["producthunt"] = {"raw_count": len(posts)}
 
-    # --- 2. 아이디어 발굴 ---
+    # --- 2. 아이디어 발굴 (과거 제안과 중복 제외) ---
+    seen = _seen_ideas()
+    print(f"[INFO] 과거 누적 아이디어 {len(seen)}개를 중복 제외 목록으로 전달")
     discovered = _safe(
         "아이디어 발굴",
-        lambda: analyze.discover_ideas(posts, n=DEEP_DIVE_COUNT),
+        lambda: analyze.discover_ideas(posts, n=DEEP_DIVE_COUNT, seen=seen),
         {"common_themes": [], "top_ideas": []},
     )
     report["common_themes"] = discovered.get("common_themes", [])
     top_ideas = discovered.get("top_ideas", [])
+
+    # 안전망: 과거 제목과 정확히/거의 같은 것은 한 번 더 걸러낸다
+    seen_norm = {_norm(s.get("title", "")) for s in seen}
+    fresh = [i for i in top_ideas if _norm(i.get("title", "")) not in seen_norm]
+    dropped = len(top_ideas) - len(fresh)
+    if dropped:
+        report["warnings"].append(f"중복 아이디어 {dropped}개를 제외했습니다.")
+    top_ideas = fresh
+
     if not top_ideas:
-        report["warnings"].append("아이디어를 발굴하지 못했습니다 (Anthropic 키/모델 확인).")
+        report["warnings"].append("새로운 아이디어를 발굴하지 못했습니다 (Anthropic 키/모델 확인 또는 소재 고갈).")
         return report
 
     # --- 3. 각 아이디어 심층 리서치 ---
