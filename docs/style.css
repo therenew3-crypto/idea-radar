@@ -25,25 +25,46 @@ header {
   position: sticky; top: 0; z-index: 10;
   background: rgba(15, 17, 21, 0.92); backdrop-filter: blur(8px);
 }
-header h1 { margin: 0 0 12px; font-size: 1.45rem; }
-.controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-select {
+header h1 { margin: 0 0 12px; font-size: 1.35rem; }
+
+/* 상단 툴바 */
+.toolbar { display: flex; flex-direction: column; gap: 8px; max-width: 860px; margin: 0 auto; }
+.snap-select {
+  width: 100%;
   background: var(--card-2); color: var(--text);
-  border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 0.9rem;
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 11px 14px; font-size: 0.95rem; font-weight: 600;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239aa0ab' viewBox='0 0 16 16'><path d='M4 6l4 4 4-4'/></svg>");
+  background-repeat: no-repeat; background-position: right 14px center;
 }
+.btn-row { display: flex; gap: 8px; }
 .btn {
+  flex: 1; justify-content: center;
   background: var(--card-2); color: var(--text);
-  border: 1px solid var(--border); border-radius: 8px;
-  padding: 6px 12px; font-size: 0.85rem; cursor: pointer;
-  text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 11px 12px; font-size: 0.92rem; cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 5px;
 }
+.btn:active { transform: scale(0.98); }
 .btn:hover { border-color: var(--accent); }
-.btn.ghost { color: var(--accent); }
+.btn.ghost { color: var(--accent); border-color: rgba(255,107,53,0.4); }
 #refresh.spinning { pointer-events: none; opacity: 0.7; animation: spin 0.7s linear; }
 @keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
-.status { color: var(--muted); font-size: 0.85rem; }
+.status {
+  max-width: 860px; margin: 8px auto 0;
+  color: var(--muted); font-size: 0.82rem;
+}
 main { max-width: 860px; margin: 0 auto; padding: 16px; min-height: 60vh; }
 .loading { color: var(--muted); text-align: center; padding: 40px; }
+
+/* 넓은 화면에선 한 줄로 */
+@media (min-width: 620px) {
+  .toolbar { flex-direction: row; align-items: center; }
+  .snap-select { flex: 1; }
+  .btn-row { flex: none; }
+  .btn { flex: none; }
+}
 
 .themes {
   background: var(--card); border: 1px solid var(--border);

@@ -63,7 +63,8 @@ async function refresh() {
   status.textContent = "새로고침 중…";
   try {
     await loadIndex(currentId);
-    status.textContent = "방금 새로고침됨";
+    const when = current?.label || fmtKST(current?.generated_at) || "";
+    status.textContent = `✓ 새로고침됨 · 🕑 ${when}`;
   } catch {
     status.textContent = "새로고침 실패 (네트워크 확인)";
   } finally {
@@ -71,13 +72,22 @@ async function refresh() {
   }
 }
 
+// generated_at(UTC ISO) -> "YYYY-MM-DD HH:MM" (KST)
+function fmtKST(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  const k = new Date(d.getTime() + 9 * 3600 * 1000);
+  const p = (n) => String(n).padStart(2, "0");
+  return `${k.getUTCFullYear()}-${p(k.getUTCMonth() + 1)}-${p(k.getUTCDate())} ${p(k.getUTCHours())}:${p(k.getUTCMinutes())}`;
+}
+
 async function loadDate(id) {
-  const sel = document.querySelector("#date-select");
   document.querySelector("#status").textContent = "불러오는 중…";
   current = await fetch(`data/${id}.json`, { cache: "no-store" }).then((r) => r.json());
   currentId = id;
-  const label = sel.options[sel.selectedIndex]?.text || current.label || id;
-  document.querySelector("#status").textContent = `표시 중: ${label}`;
+  const when = current.label || fmtKST(current.generated_at) || id;
+  document.querySelector("#status").textContent = `🕑 갱신: ${when}`;
   render();
 }
 
