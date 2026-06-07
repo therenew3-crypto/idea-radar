@@ -37,7 +37,18 @@ jobs:
           git add docs/data
           if git diff --staged --quiet; then
             echo "변경 없음 — 커밋 건너뜀"
-          else
-            git commit -m "data: $(date -u +%Y-%m-%d) 일일 사업 기회 분석"
-            git push
+            exit 0
           fi
+          git commit -m "data: $(date -u +%Y-%m-%dT%H:%MZ) 일일 사업 기회 분석"
+          # 분석 중 원격이 바뀌었을 수 있으므로, 받아서 합친 뒤 푸시 (충돌 대비 재시도)
+          for i in 1 2 3 4 5; do
+            if git pull --rebase --autostash origin "$GITHUB_REF_NAME" \
+               && git push origin "HEAD:$GITHUB_REF_NAME"; then
+              echo "푸시 성공"
+              exit 0
+            fi
+            echo "원격이 변경됨 — 재시도 $i..."
+            sleep $((i * 3))
+          done
+          echo "푸시 최종 실패"
+          exit 1
