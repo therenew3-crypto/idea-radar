@@ -25,10 +25,9 @@ jobs:
       - name: 파이프라인 실행
         env:
           PRODUCTHUNT_TOKEN: ${{ secrets.PRODUCTHUNT_TOKEN }}
-          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
-          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL }}   # 미설정 시 코드 기본값 사용
+          CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL }}        # 미설정 시 코드 기본값 사용
+          DEEP_DIVE_COUNT: ${{ vars.DEEP_DIVE_COUNT }}  # 심층분석 개수 (미설정 시 5)
         run: python src/run.py
 
       - name: 결과 커밋
