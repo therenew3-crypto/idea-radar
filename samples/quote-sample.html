@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>견적서 시안 — 프리랜서 문서 생성기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --line: #333;
+    --line-soft: #c9c9c9;
+    --accent: #1f4e79;
+    --muted: #666;
+    --band: #f1f4f8;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #e9ecef; }
+  body {
+    font-family: 'Noto Sans KR', 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    color: var(--ink);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  /* A4 페이지 */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 12mm auto;
+    padding: 18mm 16mm;
+    background: #fff;
+    box-shadow: 0 2px 14px rgba(0,0,0,.18);
+    position: relative;
+  }
+  .doc-title {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 14px;
+    margin: 0 0 4px;
+    text-indent: 14px; /* 자간 보정 */
+  }
+  .doc-sub { text-align: center; color: var(--muted); font-size: 12px; margin-bottom: 22px; letter-spacing: 2px; }
+
+  .top-grid { display: flex; gap: 14px; margin-bottom: 18px; }
+  .party { flex: 1; border: 1px solid var(--line-soft); }
+  .party .head {
+    background: var(--band); padding: 7px 10px; font-weight: 700; font-size: 13px;
+    border-bottom: 1px solid var(--line-soft); color: var(--accent);
+  }
+  .party table { width: 100%; border-collapse: collapse; }
+  .party td { padding: 6px 10px; font-size: 12px; vertical-align: top; border-bottom: 1px solid #eee; }
+  .party td.k { width: 64px; color: var(--muted); white-space: nowrap; }
+  .party tr:last-child td { border-bottom: none; }
+
+  .meta { display: flex; justify-content: space-between; align-items: flex-end; margin: 4px 2px 14px; font-size: 12px; }
+  .meta .amount-box {
+    border: 2px solid var(--accent); padding: 8px 14px; border-radius: 4px;
+    font-size: 15px; font-weight: 700; color: var(--accent);
+  }
+  .meta .amount-box small { display:block; font-weight:500; color:var(--muted); font-size:10px; letter-spacing:1px;}
+
+  table.items { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+  table.items th {
+    background: var(--accent); color: #fff; font-size: 12px; font-weight: 500;
+    padding: 9px 8px; border: 1px solid var(--accent);
+  }
+  table.items td {
+    border: 1px solid var(--line-soft); padding: 8px; font-size: 12px; text-align: center;
+  }
+  table.items td.name { text-align: left; }
+  table.items td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.items tr.empty td { height: 34px; }
+  table.items tfoot td {
+    font-weight: 700; background: #fafbfc; font-size: 12.5px;
+  }
+  table.items tfoot td.label { text-align: right; color: var(--muted); font-weight: 500; }
+  table.items tfoot tr.total td { background: var(--band); color: var(--accent); font-size: 14px; }
+
+  .notes { margin-top: 18px; border: 1px solid var(--line-soft); }
+  .notes .head { background: var(--band); padding: 7px 10px; font-weight: 700; font-size: 12px; color: var(--accent); border-bottom:1px solid var(--line-soft);}
+  .notes ul { margin: 0; padding: 10px 10px 10px 28px; font-size: 11.5px; line-height: 1.9; color: #333; }
+
+  .sign { margin-top: 26px; text-align: right; font-size: 13px; line-height: 2; }
+  .sign .stamp {
+    display: inline-block; width: 52px; height: 52px; border: 1.5px dashed var(--line-soft);
+    border-radius: 50%; color: var(--line-soft); font-size: 10px; text-align: center;
+    line-height: 52px; vertical-align: middle; margin-left: 8px;
+  }
+  .foot { margin-top: 30px; text-align: center; color: #999; font-size: 10px; border-top: 1px solid #eee; padding-top: 8px; }
+
+  .mockup-flag {
+    position: fixed; top: 10px; left: 10px; z-index: 9;
+    background: #ff6b35; color: #fff; font-size: 11px; padding: 5px 10px; border-radius: 4px;
+    font-family: sans-serif;
+  }
+  @media print {
+    body { background: #fff; }
+    .page { margin: 0; box-shadow: none; width: auto; min-height: auto; }
+    .mockup-flag { display: none; }
+    @page { size: A4; margin: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="mockup-flag">시안(mockup) · 인쇄 → PDF로 저장</div>
+
+<div class="page">
+  <h1 class="doc-title">견 적 서</h1>
+  <p class="doc-sub">QUOTATION</p>
+
+  <div class="top-grid">
+    <div class="party">
+      <div class="head">공급받는자 (수신)</div>
+      <table>
+        <tr><td class="k">상호</td><td>(주)테크스타트</td></tr>
+        <tr><td class="k">담당자</td><td>이서연 팀장 귀하</td></tr>
+        <tr><td class="k">사업자번호</td><td>123-45-67890</td></tr>
+        <tr><td class="k">연락처</td><td>seoyeon@techstart.kr</td></tr>
+      </table>
+    </div>
+    <div class="party">
+      <div class="head">공급자 (발신)</div>
+      <table>
+        <tr><td class="k">상호</td><td>김프리 (프리랜서 개발자)</td></tr>
+        <tr><td class="k">사업자번호</td><td>987-65-43210</td></tr>
+        <tr><td class="k">연락처</td><td>kim.dev@email.com / 010-1234-5678</td></tr>
+        <tr><td class="k">계좌</td><td>○○은행 123-456789-01-012</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div>
+      <div>견적일자 : 2026-06-08</div>
+      <div>유효기간 : 견적일로부터 30일 (2026-07-08)</div>
+    </div>
+    <div class="amount-box">
+      <small>견적 합계 금액 (VAT 포함)</small>
+      ₩ 4,950,000 (일금 사백구십오만원정)
+    </div>
+  </div>
+
+  <table class="items">
+    <thead>
+      <tr>
+        <th style="width:34px">No</th>
+        <th>품목 · 내용</th>
+        <th style="width:54px">수량</th>
+        <th style="width:96px">단가</th>
+        <th style="width:104px">공급가액</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td class="name">반응형 랜딩페이지 디자인 · 퍼블리싱 (5섹션)</td>
+        <td>1식</td>
+        <td class="num">1,800,000</td>
+        <td class="num">1,800,000</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td class="name">프런트엔드 개발 (Next.js, 문의폼 연동)</td>
+        <td>1식</td>
+        <td class="num">2,000,000</td>
+        <td class="num">2,000,000</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td class="name">반응형 대응 · 크로스브라우징 QA</td>
+        <td>1식</td>
+        <td class="num">500,000</td>
+        <td class="num">500,000</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td class="name">배포 세팅 (Vercel) 및 1개월 하자보수</td>
+        <td>1식</td>
+        <td class="num">200,000</td>
+        <td class="num">200,000</td>
+      </tr>
+      <tr class="empty"><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <tfoot>
+      <tr><td colspan="4" class="label">공급가액 합계</td><td class="num">4,500,000</td></tr>
+      <tr><td colspan="4" class="label">부가세 (10%)</td><td class="num">450,000</td></tr>
+      <tr class="total"><td colspan="4" class="label">합계 금액 (VAT 포함)</td><td class="num">4,950,000</td></tr>
+    </tfoot>
+  </table>
+
+  <div class="notes">
+    <div class="head">결제 조건 및 특이사항</div>
+    <ul>
+      <li>결제 조건 : 계약금 50% (착수 시) / 잔금 50% (납품 검수 후 7일 이내)</li>
+      <li>작업 기간 : 계약일로부터 약 3주 (영업일 기준 15일)</li>
+      <li>수정 범위 : 단계별 2회 무상 수정 포함, 이후 건당 별도 협의</li>
+      <li>본 견적은 부가가치세 별도 항목을 포함한 최종 금액입니다.</li>
+    </ul>
+  </div>
+
+  <div class="sign">
+    위와 같이 견적합니다.<br />
+    2026년 6월 8일<br />
+    공급자 : 김 프 리 <span class="stamp">(인)</span>
+  </div>
+
+  <div class="foot">
+    본 문서는 프리랜서 문서 생성기 시안으로 작성되었습니다. · 표준 참고용
+  </div>
+</div>
+</body>
+</html>

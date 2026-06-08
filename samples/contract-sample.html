@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>소프트웨어 개발 용역 계약서 시안 — 프리랜서 문서 생성기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root { --ink:#1a1a1a; --accent:#1f4e79; --muted:#666; --line:#bbb; --band:#f1f4f8; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:#e9ecef; }
+  body {
+    font-family:'Noto Sans KR','Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    color:var(--ink); -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .page {
+    width:210mm; min-height:297mm; margin:12mm auto; padding:20mm 18mm; background:#fff;
+    box-shadow:0 2px 14px rgba(0,0,0,.18);
+  }
+  .doc-title { text-align:center; font-size:23px; font-weight:700; letter-spacing:4px; margin:0 0 6px; }
+  .doc-sub { text-align:center; color:var(--muted); font-size:11px; letter-spacing:2px; margin-bottom:20px; }
+
+  .preamble { font-size:12.5px; line-height:2; margin-bottom:14px; }
+  .preamble b { color:var(--accent); }
+
+  .clause { margin-bottom:13px; font-size:12px; line-height:1.95; }
+  .clause h3 {
+    font-size:12.5px; font-weight:700; color:var(--accent); margin:0 0 3px;
+    border-bottom:1px solid #e3e3e3; padding-bottom:2px;
+  }
+  .clause ol { margin:2px 0 0; padding-left:20px; }
+  .clause ol li { margin-bottom:2px; }
+  .clause p { margin:2px 0; }
+  .amt { font-weight:700; }
+
+  .info-table { width:100%; border-collapse:collapse; margin:4px 0 8px; }
+  .info-table td { border:1px solid var(--line); padding:6px 9px; font-size:11.5px; }
+  .info-table td.k { background:var(--band); color:var(--muted); width:90px; white-space:nowrap; font-weight:500; }
+
+  .sign-block { margin-top:26px; page-break-inside:avoid; }
+  .sign-block .date { text-align:center; font-size:13px; margin-bottom:20px; letter-spacing:2px; }
+  .parties { display:flex; gap:24px; }
+  .parties .col { flex:1; font-size:12px; line-height:2.1; }
+  .parties .col .label { font-weight:700; color:var(--accent); border-bottom:1.5px solid var(--accent); padding-bottom:3px; margin-bottom:8px; display:block; }
+  .parties .row { display:flex; justify-content:space-between; }
+  .stamp { display:inline-block; width:46px; height:46px; border:1.5px dashed #bbb; border-radius:50%; color:#bbb; font-size:9px; text-align:center; line-height:46px; }
+
+  .disclaimer {
+    margin-top:24px; padding:10px 12px; background:#fff7ed; border:1px solid #fed7aa; border-radius:5px;
+    font-size:10.5px; color:#9a3412; line-height:1.7;
+  }
+  .foot { margin-top:14px; text-align:center; color:#999; font-size:10px; }
+
+  .mockup-flag { position:fixed; top:10px; left:10px; z-index:9; background:#ff6b35; color:#fff; font-size:11px; padding:5px 10px; border-radius:4px; font-family:sans-serif; }
+  @media print {
+    body { background:#fff; }
+    .page { margin:0; box-shadow:none; width:auto; min-height:auto; }
+    .mockup-flag { display:none; }
+    @page { size:A4; margin:14mm; }
+  }
+</style>
+</head>
+<body>
+<div class="mockup-flag">시안(mockup) · 인쇄 → PDF로 저장</div>
+
+<div class="page">
+  <h1 class="doc-title">소프트웨어 개발 용역 계약서</h1>
+  <p class="doc-sub">SOFTWARE DEVELOPMENT SERVICE AGREEMENT</p>
+
+  <p class="preamble">
+    주식회사 테크스타트(이하 “<b>갑</b>”)와 프리랜서 개발자 김프리(이하 “<b>을</b>”)는
+    아래 소프트웨어 개발 용역에 관하여 다음과 같이 계약을 체결한다.
+  </p>
+
+  <div class="clause">
+    <h3>제1조 (계약의 목적)</h3>
+    <p>본 계약은 “갑”이 “을”에게 위탁하는 소프트웨어 개발 용역의 수행 및 그 대가의 지급에 관한 권리·의무를 정함을 목적으로 한다.</p>
+  </div>
+
+  <div class="clause">
+    <h3>제2조 (용역의 범위)</h3>
+    <p>“을”이 수행할 용역의 범위는 다음과 같으며, 세부 사항은 별첨 견적서·과업지시서에 따른다.</p>
+    <ol>
+      <li>반응형 랜딩페이지 디자인 및 퍼블리싱 (5개 섹션)</li>
+      <li>프런트엔드 개발 (Next.js 기반) 및 문의폼 연동</li>
+      <li>크로스브라우징 QA 및 Vercel 배포 세팅</li>
+    </ol>
+  </div>
+
+  <div class="clause">
+    <h3>제3조 (계약금액 및 지급방법)</h3>
+    <table class="info-table">
+      <tr><td class="k">총 계약금액</td><td>금 사백구십오만원정 (₩4,950,000, 부가가치세 포함)</td></tr>
+      <tr><td class="k">계약금</td><td>총액의 50% (₩2,475,000) — 계약 체결 및 착수 시</td></tr>
+      <tr><td class="k">잔금</td><td>총액의 50% (₩2,475,000) — 납품물 검수 완료 후 7일 이내</td></tr>
+      <tr><td class="k">지급계좌</td><td>○○은행 123-456789-01-012 (예금주: 김프리)</td></tr>
+    </table>
+  </div>
+
+  <div class="clause">
+    <h3>제4조 (계약기간)</h3>
+    <p>본 용역의 수행기간은 <b>2026년 6월 9일</b>부터 <b>2026년 6월 30일</b>까지로 한다. 단, 양 당사자의 서면 합의로 기간을 연장할 수 있다.</p>
+  </div>
+
+  <div class="clause">
+    <h3>제5조 (검수 및 납품)</h3>
+    <ol>
+      <li>“을”은 계약기간 내 완성된 결과물을 “갑”에게 인도하고, “갑”은 인도일로부터 7일 이내에 검수를 완료한다.</li>
+      <li>“갑”이 검수기간 내 별도의 서면 통지 없이 기간을 도과한 경우 검수에 합격한 것으로 본다.</li>
+    </ol>
+  </div>
+
+  <div class="clause">
+    <h3>제6조 (저작권 및 지식재산권의 귀속)</h3>
+    <ol>
+      <li>본 용역으로 생성된 결과물의 저작재산권은 “갑”의 <b>잔금 완납</b>을 조건으로 “갑”에게 양도된다.</li>
+      <li>“을”이 기존에 보유하던 범용 라이브러리·노하우 등 배경지식재산권은 “을”에게 유보된다.</li>
+      <li>“을”은 완료된 결과물을 비영리 포트폴리오 용도로 게시할 수 있다.</li>
+    </ol>
+  </div>
+
+  <div class="clause">
+    <h3>제7조 (수정 및 추가 작업)</h3>
+    <p>제2조 범위 내 단계별 2회의 무상 수정을 포함하며, 이를 초과하는 수정·추가 요청은 양 당사자가 별도 협의하여 추가 비용을 정한다.</p>
+  </div>
+
+  <div class="clause">
+    <h3>제8조 (비밀유지)</h3>
+    <p>양 당사자는 본 계약 수행 중 알게 된 상대방의 영업비밀·개인정보를 제3자에게 누설하지 아니하며, 이 의무는 계약 종료 후에도 2년간 유효하다.</p>
+  </div>
+
+  <div class="clause">
+    <h3>제9조 (계약의 해제·해지)</h3>
+    <ol>
+      <li>일방이 본 계약을 위반하고 상대방의 시정 요구를 받고도 7일 내 시정하지 않을 경우, 상대방은 계약을 해지할 수 있다.</li>
+      <li>“갑”의 사정으로 계약이 중도 해지되는 경우, “갑”은 해지 시점까지 “을”이 수행한 작업분에 대한 대가를 지급한다.</li>
+    </ol>
+  </div>
+
+  <div class="clause">
+    <h3>제10조 (지연배상)</h3>
+    <p>“을”의 귀책으로 납품이 지연될 경우 지연일수 1일당 계약금액의 0.1%를 배상하되, 그 총액은 계약금액의 10%를 초과하지 아니한다.</p>
+  </div>
+
+  <div class="clause">
+    <h3>제11조 (분쟁의 해결)</h3>
+    <p>본 계약과 관련한 분쟁은 상호 협의로 해결하되, 협의가 이루어지지 않을 경우 “을”의 주소지를 관할하는 법원을 제1심 관할법원으로 한다.</p>
+  </div>
+
+  <div class="clause">
+    <h3>제12조 (기타)</h3>
+    <p>본 계약에 명시되지 아니한 사항은 관계 법령 및 상관례에 따르며, 본 계약의 증명을 위해 계약서 2부를 작성하여 “갑”과 “을”이 각 1부씩 보관한다.</p>
+  </div>
+
+  <div class="sign-block">
+    <div class="date">2026년 6월 8일</div>
+    <div class="parties">
+      <div class="col">
+        <span class="label">“갑” (발주자)</span>
+        <div class="row"><span>상호</span><span>(주)테크스타트</span></div>
+        <div class="row"><span>대표자</span><span>박대표 &nbsp;<span class="stamp">(인)</span></span></div>
+        <div class="row"><span>사업자번호</span><span>123-45-67890</span></div>
+        <div class="row"><span>주소</span><span>서울시 강남구 ○○로 12</span></div>
+      </div>
+      <div class="col">
+        <span class="label">“을” (수행자)</span>
+        <div class="row"><span>성명</span><span>김프리 &nbsp;<span class="stamp">(인)</span></span></div>
+        <div class="row"><span>사업자번호</span><span>987-65-43210</span></div>
+        <div class="row"><span>연락처</span><span>010-1234-5678</span></div>
+        <div class="row"><span>주소</span><span>서울시 마포구 ○○길 34</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    ⚠️ <b>법적 고지</b> — 본 계약서는 프리랜서 문서 생성기 시안이며 일반적인 표준 참고용입니다.
+    실제 거래의 금액·규모·쟁점에 따라 조항을 조정해야 하며, 중요한 계약은 변호사 등 전문가의 검토를 권장합니다.
+  </div>
+  <div class="foot">본 문서는 프리랜서 문서 생성기 시안으로 작성되었습니다.</div>
+</div>
+</body>
+</html>
